@@ -133,6 +133,11 @@ abstract class GrantTypeBase implements GrantTypeInterface
         $response = $this->client->post($this->config[self::CONFIG_TOKEN_URL], $requestOptions);
         $data = json_decode($response->getBody()->__toString(), true);
 
-        return new AccessToken($data['access_token'], $data['token_type'], $data);
+        // This helps deal with non-conforming server implementations that might,
+        // for instance, not return a token_type parameter.
+        $token     = !empty($data['access_token']) ? $data['access_token'] : null;
+        $tokenType = !empty($data['token_type'])   ? $data['token_type'] : null;
+
+        return new AccessToken($token, $tokenType, $data);
     }
 }
